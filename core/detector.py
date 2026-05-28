@@ -192,12 +192,39 @@ _SUSPICIOUS_CMDLINE_PATTERNS: list[re.Pattern] = [
     re.compile(r"nohup\s+.*&"),                           # Backgrounding unauthorized tasks
 ]
 
+def _load_cmdline_ignore_patterns() -> set[str]:
+    """Load cmdline ignore patterns from ignore.json"""
+    ignore_file = Path(__file__).parent.parent / "data" / "ignore.json"
+    if ignore_file.exists():
+        try:
+            with open(ignore_file, "r") as f:
+                data = json.load(f)
+                return set(data.get("ignore_cmdline_patterns", []))
+        except Exception:
+            return set()
+    return set()
+
+_CMDLINE_IGNORE_PATTERNS: set[str] = set()
+
+def _is_ignored_cmdline(cmdline: str) -> bool:
+    """Check if cmdline should be ignored (context-mode, etc.)"""
+    global _CMDLINE_IGNORE_PATTERNS
+    if not _CMDLINE_IGNORE_PATTERNS:
+        _CMDLINE_IGNORE_PATTERNS = _load_cmdline_ignore_patterns()
+    for pattern in _CMDLINE_IGNORE_PATTERNS:
+        if pattern in cmdline:
+            return True
+    return False
+
 def _check_security_threats(processes: list[dict[str, Any]]) -> list[dict[str, str]]:
     """Scan command lines for known hacker patterns and malicious intent."""
     threats = []
     for proc in processes:
         cmdline = proc.get("cmdline", "")
         if not cmdline:
+            continue
+        # Skip ignored cmdline patterns (context-mode, etc.)
+        if _is_ignored_cmdline(cmdline):
             continue
             
         for pattern in _SUSPICIOUS_CMDLINE_PATTERNS:

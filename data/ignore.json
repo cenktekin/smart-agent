@@ -20,6 +20,10 @@
     "kio-admin-helper",
     "npm run start",
     "npm exec @belsa",
+    "npm exec mcp-re",
+    "npm exec @model",
+    "joplin",
+    "cat",
     "next-server (v16.2.4)",
     "lact",
     "betterbird-bin",
@@ -40,6 +44,15 @@
     "socat",
     "npm exec mcp-re",
     "npm exec @model"
+  ],
+  "ignore_cmdline_patterns": [
+    ".ctx-mode",
+    "ctx_execute",
+    "start-daemon.sh",
+    "smart-agent/start-daemon",
+    "smart-agent/cli.py",
+    "smart-agent/daemon",
+    "cli.py daemon"
   ],
   "ignore_ports": [
     9301,
